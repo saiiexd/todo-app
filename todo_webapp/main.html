@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aesthetic To-Do List with Floating Icons</title>
+  <style>
+    :root {
+      --bg-color-light: #f0f2f5;
+      --text-color-light: #222;
+      --container-bg-light: #fff;
+      --btn-bg-light: #4a90e2;
+      --btn-text-light: #fff;
+      --task-bg-light: #fff;
+      --task-border-light: #ccc;
+      --task-hover-bg-light: #e6f0ff;
+
+      --bg-color-dark: #121212;
+      --text-color-dark: #eee;
+      --container-bg-dark: #1e1e1e;
+      --btn-bg-dark: #3399ff;
+      --btn-text-dark: #fff;
+      --task-bg-dark: #292929;
+      --task-border-dark: #444;
+      --task-hover-bg-dark: #3a3a3a;
+    }
+
+    body {
+      margin: 0; padding: 40px 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color-light);
+      color: var(--text-color-light);
+      display: flex;
+      justify-content: center;
+      transition: background-color 0.5s ease, color 0.5s ease;
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    body.dark {
+      background-color: var(--bg-color-dark);
+      color: var(--text-color-dark);
+    }
+
+    .container {
+      background-color: var(--container-bg-light);
+      width: 420px;
+      border-radius: 15px;
+      padding: 30px 30px 40px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+      transition: background-color 0.5s ease;
+      z-index: 10;
+    }
+    body.dark .container {
+      background-color: var(--container-bg-dark);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-weight: 600;
+      font-size: 2rem;
+      user-select: none;
+    }
+
+    #theme-toggle {
+      background: transparent;
+      border: none;
+      font-size: 1.7rem;
+      cursor: pointer;
+      color: inherit;
+      transition: color 0.3s ease;
+      user-select: none;
+    }
+    #theme-toggle:hover {
+      color: var(--btn-bg-light);
+    }
+    body.dark #theme-toggle:hover {
+      color: var(--btn-bg-dark);
+    }
+
+    form {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"] {
+      flex-grow: 1;
+      padding: 14px 16px;
+      font-size: 1rem;
+      border: 1.5px solid var(--task-border-light);
+      border-radius: 14px;
+      background-color: var(--task-bg-light);
+      color: var(--text-color-light);
+      transition: background-color 0.5s, color 0.5s, border-color 0.3s;
+      outline: none;
+      user-select: text;
+    }
+    input[type="text"]::placeholder {
+      color: #999;
+    }
+    input[type="text"]:focus {
+      border-color: var(--btn-bg-light);
+    }
+    body.dark input[type="text"] {
+      background-color: var(--task-bg-dark);
+      color: var(--text-color-dark);
+      border-color: var(--task-border-dark);
+    }
+    body.dark input[type="text"]:focus {
+      border-color: var(--btn-bg-dark);
+    }
+
+    button[type="submit"] {
+      padding: 14px 25px;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 14px;
+      border: none;
+      background-color: var(--btn-bg-light);
+      color: var(--btn-text-light);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    button[type="submit"]:hover {
+      background-color: #357ABD;
+    }
+    body.dark button[type="submit"] {
+      background-color: var(--btn-bg-dark);
+    }
+    body.dark button[type="submit"]:hover {
+      background-color: #2674CC;
+    }
+
+    ul#task-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    ul#task-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    ul#task-list::-webkit-scrollbar-thumb {
+      background-color: var(--btn-bg-light);
+      border-radius: 8px;
+    }
+    body.dark ul#task-list::-webkit-scrollbar-thumb {
+      background-color: var(--btn-bg-dark);
+    }
+
+    .task-item {
+      background-color: var(--task-bg-light);
+      border: 1.5px solid var(--task-border-light);
+      border-radius: 14px;
+      padding: 14px 20px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s, border-color 0.3s;
+      cursor: pointer;
+      user-select: none;
+    }
+    .task-item:hover {
+      background-color: var(--task-hover-bg-light);
+      border-color: var(--btn-bg-light);
+    }
+    body.dark .task-item {
+      background-color: var(--task-bg-dark);
+      border-color: var(--task-border-dark);
+    }
+    body.dark .task-item:hover {
+      background-color: var(--task-hover-bg-dark);
+      border-color: var(--btn-bg-dark);
+    }
+
+    .task-item.completed {
+      text-decoration: line-through;
+      opacity: 0.5;
+      user-select: none;
+    }
+
+    .task-text {
+      flex-grow: 1;
+      font-size: 1.1rem;
+      user-select: text;
+    }
+
+    .task-actions button {
+      background: transparent;
+      border: none;
+      color: var(--btn-bg-light);
+      font-size: 1.4rem;
+      margin-left: 12px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      user-select: none;
+    }
+    .task-actions button:hover {
+      color: #285eaa;
+    }
+    body.dark .task-actions button {
+      color: var(--btn-bg-dark);
+    }
+    body.dark .task-actions button:hover {
+      color: #1a76d2;
+    }
+
+    #empty-list {
+      text-align: center;
+      font-style: italic;
+      color: #999;
+      margin-top: 40px;
+      user-select: none;
+      font-size: 1.1rem;
+    }
+
+    /* Floating icons container */
+    .floating-icons {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 0;
+    }
+
+    .floating-icon {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      fill: var(--btn-bg-light);
+      opacity: 0.3;
+      user-select: none;
+      transition: fill 0.5s ease;
+      will-change: transform, left, top, fill;
+      cursor: default;
+    }
+    body.dark .floating-icon {
+      fill: var(--btn-bg-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="To-Do List Application">
+    <header>
+      <h1>My To-Do List</h1>
+      <button id="theme-toggle" aria-label="Toggle light and dark theme">🌙</button>
+    </header>
+
+    <form id="add-form" aria-label="Add new task">
+      <input type="text" id="task-input" placeholder="Add a new task..." autocomplete="off" required />
+      <button type="submit">Add</button>
+    </form>
+
+    <ul id="task-list" aria-live="polite" aria-relevant="all" aria-atomic="true"></ul>
+
+    <p id="empty-list">No tasks yet! Add one above.</p>
+  </div>
+
+  <div class="floating-icons" aria-hidden="true"></div>
+
+  <script>
+
+
+
+    (() => {
+      const body = document.body;
+      const themeToggle = document.getElementById('theme-toggle');
+      const addForm = document.getElementById('add-form');
+      const taskInput = document.getElementById('task-input');
+      const taskList = document.getElementById('task-list');
+      const emptyList = document.getElementById('empty-list');
+      const floatingIconsContainer = document.querySelector('.floating-icons');
+
+      // SVG icons for To-Do related items
+      const icons = [
+        `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/></svg>`, // checkmark
+        `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 3h18v2H3zM3 7h18v2H3zM3 11h18v2H3zM3 15h18v2H3z"/></svg>`, // lines (list)
+        `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 3h-14c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2v-10c0-1.1-.9-2-2-2z"/></svg>`, // chat bubble/note
+        `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17h10v2H7zM7 7h10v6H7z"/></svg>`, // calendar
+        `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 6H4v12h16V6zm-8 7l-4-4h8z"/></svg>`, // envelope/notification
+        `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 7h-3V4h-2v3H8V4H6v3H3v14h18V7z"/></svg>` // clipboard
+      ];
+
+      // Colors sets for floating icons in light/dark mode
+      const lightColors = ['#4a90e2', '#50e3c2', '#f5a623', '#d0021b', '#9013fe'];
+      const darkColors = ['#3399ff', '#00cc99', '#ff9f00', '#cc0000', '#7300cc'];
+
+      // Initialize theme from localStorage
+      if(localStorage.getItem('theme') === 'dark'){
+        body.classList.add('dark');
+        themeToggle.textContent = '☀️';
+      } else {
+        themeToggle.textContent = '🌙';
+      }
+
+      // Toggle dark/light theme
+      themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark');
+        if(body.classList.contains('dark')){
+          themeToggle.textContent = '☀️';
+          localStorage.setItem('theme', 'dark');
+        } else {
+          themeToggle.textContent = '🌙';
+          localStorage.setItem('theme', 'light');
+        }
+      });
+
+      // Update visibility of empty list message
+      function updateEmptyMessage() {
+        emptyList.style.display = taskList.children.length === 0 ? 'block' : 'none';
+      }
+
+      // Create a new task list item
+      function createTaskItem(text) {
+        const li = document.createElement('li');
+        li.className = 'task-item';
+        li.tabIndex = 0;
+        li.setAttribute('role', 'listitem');
+
+        const span = document.createElement('span');
+        span.className = 'task-text';
+        span.textContent = text;
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'task-actions';
+
+        // Complete button
+        const completeBtn = document.createElement('button');
+        completeBtn.innerHTML = '✔️';
+        completeBtn.title = 'Mark task completed';
+        completeBtn.setAttribute('aria-label', `Complete task: ${text}`);
+
+        // Delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.title = 'Delete task';
+        deleteBtn.setAttribute('aria-label', `Delete task: ${text}`);
+
+        actionsDiv.appendChild(completeBtn);
+        actionsDiv.appendChild(deleteBtn);
+
+        li.appendChild(span);
+        li.appendChild(actionsDiv);
+
+        // Event listeners
+        completeBtn.addEventListener('click', () => {
+          li.classList.toggle('completed');
+        });
+
+        deleteBtn.addEventListener('click', () => {
+          li.remove();
+          updateEmptyMessage();
+        });
+
+        return li;
+      }
+
+      // Add new task
+      addForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const taskText = taskInput.value.trim();
+        if(taskText.length === 0) return;
+
+        const taskItem = createTaskItem(taskText);
+        taskList.appendChild(taskItem);
+
+        taskInput.value = '';
+        taskInput.focus();
+        updateEmptyMessage();
+      });
+
+      updateEmptyMessage();
+
+      // ---------- Floating Icons Logic ----------
+
+      const floatingIconCount = 10; // number of floating icons
+
+      // Helper to get random integer between min and max (inclusive)
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // Helper to get random float between min and max
+      function randomFloat(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      // Create floating icon elements with random initial properties
+      const floatingIcons = [];
+
+      for(let i=0; i < floatingIconCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'floating-icon';
+        div.style.width = '40px';
+        div.style.height = '40px';
+        div.style.position = 'absolute';
+        div.style.top = randomInt(0, window.innerHeight - 40) + 'px';
+        div.style.left = randomInt(0, window.innerWidth - 40) + 'px';
+        div.style.opacity = 0.3;
+        div.innerHTML = icons[i % icons.length];
+        floatingIconsContainer.appendChild(div);
+
+        // Each icon has a state: position, velocity, colorIndex, current icon index for morphing
+        floatingIcons.push({
+          el: div,
+          x: parseFloat(div.style.left),
+          y: parseFloat(div.style.top),
+          vx: randomFloat(-0.3, 0.3),
+          vy: randomFloat(-0.3, 0.3),
+          colorIndex: randomInt(0, lightColors.length-1),
+          iconIndex: i % icons.length,
+          morphTimer: 0,
+        });
+      }
+
+      function updateFloatingIcons(delta) {
+        floatingIcons.forEach((icon) => {
+          // Move position by velocity
+          icon.x += icon.vx * delta;
+          icon.y += icon.vy * delta;
+
+          // Bounce on edges (window boundaries)
+          if(icon.x < 0) {
+            icon.x = 0;
+            icon.vx = -icon.vx;
+          } else if(icon.x > window.innerWidth - 40) {
+            icon.x = window.innerWidth - 40;
+            icon.vx = -icon.vx;
+          }
+          if(icon.y < 0) {
+            icon.y = 0;
+            icon.vy = -icon.vy;
+          } else if(icon.y > window.innerHeight - 40) {
+            icon.y = window.innerHeight - 40;
+            icon.vy = -icon.vy;
+          }
+
+          // Update position
+          icon.el.style.left = icon.x + 'px';
+          icon.el.style.top = icon.y + 'px';
+
+          // Change color gradually every second
+          icon.morphTimer += delta;
+          if(icon.morphTimer > 1000) {
+            icon.morphTimer = 0;
+
+            // Change color index
+            icon.colorIndex = (icon.colorIndex + 1) % (body.classList.contains('dark') ? darkColors.length : lightColors.length);
+
+            // Change icon shape (cycle through icons)
+            icon.iconIndex = (icon.iconIndex + 1) % icons.length;
+            icon.el.innerHTML = icons[icon.iconIndex];
+          }
+
+          // Update fill color
+          const colors = body.classList.contains('dark') ? darkColors : lightColors;
+          icon.el.style.fill = colors[icon.colorIndex];
+        });
+      }
+
+      // Use requestAnimationFrame loop for smooth animation
+      let lastTimestamp = 0;
+      function animate(timestamp) {
+        if(!lastTimestamp) lastTimestamp = timestamp;
+        const delta = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        updateFloatingIcons(delta);
+
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      // Update floating icons colors when theme toggles
+      themeToggle.addEventListener('click', () => {
+        floatingIcons.forEach(icon => {
+          // Reset color index for smooth transition
+          icon.colorIndex = randomInt(0, (body.classList.contains('dark') ? darkColors.length : lightColors.length) - 1);
+        });
+      });
+
+      // Resize handling: keep icons inside viewport
+      window.addEventListener('resize', () => {
+        floatingIcons.forEach(icon => {
+          if(icon.x > window.innerWidth - 40) icon.x = window.innerWidth - 40;
+          if(icon.y > window.innerHeight - 40) icon.y = window.innerHeight - 40;
+        });
+      });
+
+    })();
+
+    
+  </script>
+</body>
+</html>
