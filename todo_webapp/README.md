@@ -19,12 +19,3 @@ python -m venv venv
 venv\Scripts\activate    
 pip install flask
 python app.py
-
-
-
----
-
-1. ✅ Commit your code:
-```bash
-git add .
-git commit -m "Initial working version of to-do app"
